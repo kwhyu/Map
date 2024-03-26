@@ -2,6 +2,10 @@ const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
 
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
 const app = express();
 const port = 3000;
 
@@ -25,6 +29,47 @@ connection.connect((err) => {
     return;
   }
   console.log("Connected to MySQL database");
+});
+
+// Konfigurasi multer untuk menangani unggahan gambar
+const storage = multer.diskStorage({
+  // destination: function (req, file, cb) {
+  //   cb(null, 'uploads/'); // Menyimpan file di folder "uploads/"
+  // },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // Menggunakan nama file asli
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// Menangani permintaan POST dari halaman HTML dengan menggunakan multer
+app.post("/process", upload.single('gambar_rs'), (req, res) => {
+  const { nama_rs, latlng_rs, tipe_rs, alamat_rs } = req.body;
+  const gambar_rs = req.file ? fs.readFileSync(req.file.path) : null; // Membaca file gambar yang diunggah
+
+
+  // Validasi data
+  if (!nama_rs || !latlng_rs || !tipe_rs || !gambar_rs || !alamat_rs) {
+    res.status(400).send('Data tidak lengkap');
+    console.log('Data yang diterima:', req.body);
+    return;
+  }
+
+  const sql = `INSERT INTO tb_rs (nama_rs, latlng_rs, tipe_rs, gambar_rs, alamat_rs) VALUES (?, ?, ?, ?, ?)`;
+  const values = [nama_rs, latlng_rs, tipe_rs, gambar_rs, alamat_rs];
+
+  connection.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Error executing SQL query:", err);
+      res.status(500).send("Internal Server Error");
+      return;
+    }
+    console.log("Data inserted into database");
+    console.log('Data yang diterima:', req.body);
+    console.log('Data yang diterima:', req.file);
+    res.send("Data inserted into database");
+  });
 });
 
 // Menambahkan endpoint untuk mengambil data dari database
@@ -70,31 +115,31 @@ app.get("/getImage/:id_rs", (req, res) => {
   });
 });
 
-// Menangani permintaan POST dari halaman HTML
-app.post("/process", (req, res) => {
-  const { nama_rs, latlng_rs, gambar_rs, alamat_rs } = req.body;
+// // Menangani permintaan POST dari halaman HTML
+// app.post("/process", (req, res) => {
+//   const { nama_rs, latlng_rs, tipe_rs, gambar_rs, alamat_rs } = req.body;
 
-  // Validasi data
-  if (!nama_rs || !latlng_rs || !gambar_rs || !alamat_rs) {
-    res.status(400).send('Data tidak lengkap');
-    console.log('Data yang diterima:', req.body);
-    return;
-  }
+//   // Validasi data
+//   if (!nama_rs || !latlng_rs || !tipe_rs || !gambar_rs || !alamat_rs) {
+//     res.status(400).send('Data tidak lengkap');
+//     console.log('Data yang diterima:', req.body);
+//     return;
+//   }
 
-  const sql = `INSERT INTO tb_rs (nama_rs, latlng_rs, gambar_rs, alamat_rs) VALUES (?, ?, ?, ?)`;
-  const values = [nama_rs, latlng_rs, gambar_rs, alamat_rs];
+//   const sql = `INSERT INTO tb_rs (nama_rs, latlng_rs, tipe_rs, gambar_rs, alamat_rs) VALUES (?, ?, ?, ?, ?)`;
+//   const values = [nama_rs, latlng_rs, tipe_rs, gambar_rs, alamat_rs];
 
-  connection.query(sql, values, (err, result) => {
-    if (err) {
-      console.error("Error executing SQL query:", err);
-      res.status(500).send("Internal Server Error");
-      return;
-    }
-    console.log("Data inserted into database");
-    console.log('Data yang diterima:', req.body);
-    res.send("Data inserted into database");
-  });
-});
+//   connection.query(sql, values, (err, result) => {
+//     if (err) {
+//       console.error("Error executing SQL query:", err);
+//       res.status(500).send("Internal Server Error");
+//       return;
+//     }
+//     console.log("Data inserted into database");
+//     console.log('Data yang diterima:', req.body);
+//     res.send("Data inserted into database");
+//   });
+// });
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

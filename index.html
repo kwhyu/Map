@@ -157,20 +157,6 @@
             function updatePopupContent(marker, index) {
                 var lat = marker.getLatLng().lat.toFixed(6);
                 var lng = marker.getLatLng().lng.toFixed(6);  
-                // var content = `
-                //         <div class ="popup-content latlan">
-                //           <table border="2" cellpadding="10">
-                //                 <tr>
-                //                   <td><div class="popup-row">Marker</div></td>
-                //                   <td><div class="popup-row">[${index + 1}]</div></td>
-                //                 </tr>
-                //                 <tr>
-                //                   <td><div class="popup-row"><span class="popup-col">Latitude:</span>${lat}</div></td>
-                //                   <td><div class="popup-row"><span class="popup-col">Longitude:</span>${lng}</div></td>
-                //                 </tr>
-                //               </table>
-                //               </div>
-                //               `;
                 var content = `
                           <div class="popup-content">
                             <div class="popup-row">Marker [${index + 1}]</div>
@@ -195,21 +181,24 @@
       </div>
       <div class="column9">
         <div class="colomn66">
-            <form action="http://localhost:3000/process" method="POST">
-            <label for="nama_rs">Name:</label><br>
+          <form action="http://localhost:3000/process" method="POST" enctype="multipart/form-data">
+            <label for="nama_rs">Nama RS:</label><br>
             <input type="text" id="nama_rs" name="nama_rs" required><br>
         
             <label for="latlng_rs">LatLng:</label><br>
             <input type="text" id="latlng_rs" name="latlng_rs" required><br>
         
+            <label for="tipe_rs">Tipe RS:</label><br>
+            <input type="text" id="tipe_rs" name="tipe_rs" required><br>
+        
             <label for="gambar_rs">Gambar RS:</label><br>
             <input type="file" id="gambar_rs" name="gambar_rs" accept="image/*" required><br><br>
         
             <label for="alamat_rs">Alamat:</label><br>
-            <input type="text" id="alamat_rs" name="alamat_rs" required><br><br>
+            <input type="text" id="alamat_rs" name="alamat_rs" required><br>
         
-            <button type="submit">Submit</button><br>
-        </form>
+            <button type="submit">Submit</button>
+          </form>
         <br>
         </div>
         <div class="colomn99">
